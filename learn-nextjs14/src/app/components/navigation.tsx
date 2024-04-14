@@ -1,8 +1,14 @@
+/**
+ * @file 네비게이션 컴포넌트
+ * @author fixalot
+ * @since 2024-04-14
+ */
+
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import {usePathname} from 'next/navigation';
+import {useState} from 'react';
 
 export default function Navigation() {
   const path = usePathname();
@@ -20,6 +26,9 @@ export default function Navigation() {
         <li>
           <Link href="/about-us/company/jobs/sales">sales</Link>{' '}
           {path === '/about-us/company/jobs/sales' ? '🔥' : ''}
+        </li>
+        <li>
+          <Link href="/movies/1234?region=kr">Movies</Link> {path === '/movies' ? '🔥' : ''}
         </li>
       </ul>
     </nav>
