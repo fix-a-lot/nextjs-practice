@@ -1,39 +1,73 @@
-import {useEffect, useState} from 'react';
-
+import {Component, useEffect, useState} from 'react';
+import ReactQuill, {Quill} from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import dynamic from 'next/dynamic';
+import ImageResize from 'quill-image-resize-module-react';
 
-const ReactQuill = dynamic(() => import('react-quill'), {ssr: false});
-const ImageResize = dynamic(() => import('quill-image-resize-module-react'), {ssr: false});
-// const Quill = dynamic(() => import('react-quill').then(module => module.default.Quill), {ssr: false})
+Quill.register('modules/imageResize', ImageResize);
 
-export default function CustomHtmlEditor() {
-  const [value, setValue] = useState('');
+const modules = {
+  toolbar: [
+    [{header: '1'}, {header: '2'}, {font: []}],
+    [{size: []}],
+    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+    [{list: 'ordered'}, {list: 'bullet'}, {indent: '-1'}, {indent: '+1'}],
+    ['link', 'image', 'video'],
+    ['clean']
+  ],
+  clipboard: {
+    // toggle to add extra line breaks when pasting HTML:
+    matchVisual: false
+  },
+  imageResize: {
+    parchment: Quill.import('parchment'),
+    modules: ['Resize', 'DisplaySize']
+  }
+};
 
-  useEffect(() => {
-    const registerQuillModules = async () => {
-      const {Quill} = await import('react-quill');
-      const ImageResize = await import('quill-image-resize-module-react');
-      Quill.register('modules/imageResize', ImageResize.default);
-    };
+/*
+ * Quill editor formats
+ * See https://quilljs.com/docs/formats/
+ */
+const formats = [
+  'header',
+  'font',
+  'size',
+  'bold',
+  'italic',
+  'underline',
+  'strike',
+  'blockquote',
+  'list',
+  'bullet',
+  'indent',
+  'link',
+  'image',
+  'video'
+];
 
-    registerQuillModules();
-  }, []);
+interface CustomHtmlEditorProps {
+  value: string;
+  setValue: (value: string) => void;
+  placeholder?: string;
+}
+
+export default function CustomHtmlEditor({
+  value,
+  setValue,
+  placeholder = ''
+}: CustomHtmlEditorProps) {
 
   return (
-    <ReactQuill
-      value={value}
-      onChange={setValue}
-      modules={{
-        toolbar: [
-          [{font: []}],
-          [{size: []}],
-          ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code'],
-          [{list: 'ordered'}, {list: 'bullet'}, {indent: '-1'}, {indent: '+1'}],
-          ['link', 'image'],
-          ['clean']
-        ]
-      }}
-    />
+    <div>
+      <ReactQuill
+        // theme={this.state.theme}
+        value={value}
+        onChange={setValue}
+        modules={modules}
+        formats={formats}
+        bounds={'#root'}
+        placeholder={placeholder}
+      />
+    </div>
   );
 }
