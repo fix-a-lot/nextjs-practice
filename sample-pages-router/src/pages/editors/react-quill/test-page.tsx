@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react';
+import {useEffect, useState} from 'react';
 import dynamic from 'next/dynamic';
 
 const CustomHtmlEditor = dynamic(() => import('./custom-html-editor'), {ssr: false});
@@ -11,7 +11,9 @@ export default function TestPage() {
   }
 
   function load() {
-    setValue(localStorage.getItem('content') || '');
+    let content = localStorage.getItem('content') || '';
+    setValue(content);
+    console.log('content:', content);
   }
 
   function clear() {
@@ -22,10 +24,13 @@ export default function TestPage() {
     console.log('content:', localStorage.getItem('content'));
   }
 
+  useEffect(() => {
+    load();
+  }, []);
+
   return (
-    <div>
-      <CustomHtmlEditor />
-      <br />
+    <>
+      <CustomHtmlEditor value={value} setValue={setValue} placeholder={'내용을 입력해 주세요.'} />
       <button type="button" onClick={save}>
         save
       </button>
@@ -38,6 +43,6 @@ export default function TestPage() {
       <button type="button" onClick={expose}>
         expose
       </button>
-    </div>
+    </>
   );
 }

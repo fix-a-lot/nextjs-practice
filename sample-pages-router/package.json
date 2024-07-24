@@ -29,7 +29,9 @@
     "react-dom": "^18",
     "react-draft-wysiwyg": "^1.15.0",
     "react-quill": "^2.0.0",
-    "react-quilljs": "^2.0.3"
+    "react-quilljs": "^2.0.3",
+    "slate": "^0.103.0",
+    "slate-react": "^0.107.1"
   },
   "devDependencies": {
     "@types/node": "^20",

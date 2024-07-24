@@ -1,10 +1,18 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import dynamic from 'next/dynamic';
 
 const CustomHtmlEditor = dynamic(() => import('./custom-html-editor'), {ssr: false});
 
 export default function TestPage() {
   const [value, setValue] = useState('');
+
+  const [range, setRange] = useState();
+  const [lastChange, setLastChange] = useState();
+  const [readOnly, setReadOnly] = useState(false);
+
+  const quillRef = useRef();
+
+  const [ssrEnd, setSsrEnd] = useState(false);
 
   function save() {
     localStorage.setItem('content', value);
@@ -23,18 +31,31 @@ export default function TestPage() {
   }
 
   useEffect(() => {
-    load();
+    // load();
+    setSsrEnd(true);
   }, []);
 
-  return (<>
-    <CustomHtmlEditor
-    value={value}
-    setValue={setValue}
-    placeholder={'내용을 입력해 주세요.'}
-  />
-    <button type="button" onClick={save}>save</button>
-    <button type="button" onClick={load}>load</button>
-    <button type="button" onClick={clear}>clear</button>
-    <button type="button" onClick={expose}>expose</button>
-  </>);
+  return (
+    <>
+      {ssrEnd && (
+        <CustomHtmlEditor
+          readOnly={false}
+          onSelectionChange={setRange}
+          onTextChange={setLastChange}
+        />
+      )}
+      <button type="button" onClick={save}>
+        save
+      </button>
+      <button type="button" onClick={load}>
+        load
+      </button>
+      <button type="button" onClick={clear}>
+        clear
+      </button>
+      <button type="button" onClick={expose}>
+        expose
+      </button>
+    </>
+  );
 }

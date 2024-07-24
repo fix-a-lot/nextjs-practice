@@ -12,18 +12,18 @@ import {
 
 import 'ckeditor5/ckeditor5.css';
 
-export default function CUstomEditor() {
+import 'ckeditor5-premium-features/ckeditor5-premium-features.css';
+
+export default function CustomHtmlEditor() {
   return (
     <CKEditor
       editor={ClassicEditor}
       config={{
-        image: {
-          toolbar: ['toggleImageCaption', 'imageTextAlternative', 'ckboxImageEdit']
-        },
         toolbar: {
           items: ['undo', 'redo', '|', 'bold', 'italic']
         },
-        plugins: [Bold, Essentials, Italic, Mention, Paragraph, Undo, ImageToolbar],
+        plugins: [Bold, Essentials, Italic, Paragraph, Undo],
+        licenseKey: '<YOUR_LICENSE_KEY>',
         initialData: '<p>Hello from CKEditor 5 in React!</p>'
       }}
     />

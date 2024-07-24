@@ -1,85 +1,61 @@
-import {Component, useEffect, useState} from 'react';
-import ReactQuill, {Quill} from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import ImageResize from 'quill-image-resize-module-react';
+import React, {forwardRef, useEffect, useLayoutEffect, useRef} from 'react';
+import Quill from 'quill';
 
-Quill.register('modules/imageResize', ImageResize);
+import "quill/dist/quill.core.css";
 
-const modules = {
-  toolbar: [
-    [{header: '1'}, {header: '2'}],
-    // [{size: ['small', false, 'large', 'huge']}],
-    [{header: [1, 2, 3, 4, 5, 6, false]}],
-    // [{color: []}, {background: []}],
-    // [{ 'font': [] }],
-    // [{ 'align': [] }],
-    ['bold', 'italic', 'underline', 'strike',
-      // 'blockquote'
-    ],
-    [
-      {list: 'ordered'}, {list: 'bullet'},
-      // {indent: '-1'}, {indent: '+1'}
-    ],
-    [
-      'link',
-      'image'
-      // 'video'
-    ],
-    ['clean']
-  ],
-  clipboard: {
-    // toggle to add extra line breaks when pasting HTML:
-    matchVisual: false
-  },
-  imageResize: {
-    parchment: Quill.import('parchment'),
-    modules: ['Resize', 'DisplaySize']
-  }
-};
+// Editor is an uncontrolled React component
+// const CustomHtmlEditor = forwardRef(
+//   ({ readOnly, defaultValue, onTextChange, onSelectionChange }: any, ref: any) => {
 
-/*
- * Quill editor formats
- * See https://quilljs.com/docs/formats/
- */
-const formats = [
-  'header',
-  // 'font',
-  'size',
-  'bold',
-  'italic',
-  'underline',
-  'strike',
-  'blockquote',
-  'list',
-  'bullet',
-  'indent',
-  'link',
-  'image'
-  // 'video'
-];
+export default function CustomHtmlEditor({readOnly, defaultValue, onTextChange, onSelectionChange}: any) {
+  const containerRef = useRef(null);
+  const defaultValueRef = useRef(defaultValue);
+  const onTextChangeRef = useRef(onTextChange);
+  const onSelectionChangeRef = useRef(onSelectionChange);
 
-interface CustomHtmlEditorProps {
-  value: string;
-  setValue: (value: string) => void;
-  placeholder?: string;
+  const ref = useRef(null);
+
+  useLayoutEffect(() => {
+    onTextChangeRef.current = onTextChange;
+    onSelectionChangeRef.current = onSelectionChange;
+  });
+
+  useEffect(() => {
+    ref.current?.enable(!readOnly);
+  }, [ref, readOnly]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const editorContainer = container.appendChild(
+      container.ownerDocument.createElement('div')
+    );
+    const quill = new Quill(editorContainer, {
+      theme: 'snow'
+    });
+
+    ref.current = quill;
+
+    if (defaultValueRef.current) {
+      quill.setContents(defaultValueRef.current);
+    }
+
+    quill.on(Quill.events.TEXT_CHANGE, (...args) => {
+      onTextChangeRef.current?.(...args);
+    });
+
+    quill.on(Quill.events.SELECTION_CHANGE, (...args) => {
+      onSelectionChangeRef.current?.(...args);
+    });
+
+    return () => {
+      ref.current = null;
+      container.innerHTML = '';
+    };
+  }, [ref]);
+
+  return <div ref={containerRef}></div>;
 }
 
-export default function CustomHtmlEditor({
-  value,
-  setValue,
-  placeholder = ''
-}: CustomHtmlEditorProps) {
-  return (
-    <div>
-      <ReactQuill
-        // theme={this.state.theme}
-        value={value}
-        onChange={setValue}
-        modules={modules}
-        formats={formats}
-        bounds={'#root'}
-        placeholder={placeholder}
-      />
-    </div>
-  );
-}
+// CustomHtmlEditor.displayName = 'CustomHtmlEditor';
+//
+// export default CustomHtmlEditor;
