@@ -13,19 +13,23 @@ export default function TestPage() {
   function load() {
     let content = localStorage.getItem('content') || '';
     setValue(content);
-    // console.log('content:', content);
+    console.log('in store:', content);
   }
 
   function clear() {
     setValue('');
   }
 
-  function expose() {
-    console.log('content:', localStorage.getItem('content'));
+  function exposeStore() {
+    console.log('in store:', localStorage.getItem('content'));
+  }
+
+  function exposeState() {
+    console.log('value:', value);
   }
 
   useEffect(() => {
-    load();
+    // load();
   }, []);
 
   return (
@@ -40,8 +44,11 @@ export default function TestPage() {
       <button type="button" onClick={clear}>
         clear
       </button>
-      <button type="button" onClick={expose}>
-        expose
+      <button type="button" onClick={exposeStore}>
+        exposeStore
+      </button>
+      <button type="button" onClick={exposeState}>
+        exposeState
       </button>
     </>
   );

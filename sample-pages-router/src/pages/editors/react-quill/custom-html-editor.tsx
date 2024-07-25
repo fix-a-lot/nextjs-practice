@@ -6,16 +6,23 @@ import {useEffect} from 'react';
 Quill.register('modules/imageResize', ImageResize);
 
 // 사이즈 변경한 이미지 불러오지 못하는 이슈 해결하는 monkey patch 코드
-var BaseImageFormat = Quill.import('formats/image');
+interface EmbedBlot {
+  new(...args: any[]): EmbedBlot;
+  domNode: any;
+  format(name, value);
+}
+
+const Image: EmbedBlot = Quill.import('formats/image');
 const ImageFormatAttributesList = [
-    'alt',
-    'height',
-    'width',
-    'style'
+  'alt',
+  'height',
+  'width',
+  'style'
 ];
-class ImageFormat extends BaseImageFormat {
+
+class StyledImage extends Image {
   static formats(domNode) {
-    return ImageFormatAttributesList.reduce(function(formats, attribute) {
+    return ImageFormatAttributesList.reduce(function (formats, attribute) {
       if (domNode.hasAttribute(attribute)) {
         formats[attribute] = domNode.getAttribute(attribute);
       }
@@ -34,7 +41,8 @@ class ImageFormat extends BaseImageFormat {
     }
   }
 }
-Quill.register(ImageFormat, true);
+
+Quill.register(StyledImage, true);
 // end of 사이즈 변경한 이미지 불러오지 못하는 이슈 해결하는 monkey patch 코드
 
 const modules = {
@@ -114,15 +122,14 @@ export default function CustomHtmlEditor({
 }: CustomHtmlEditorProps) {
 
   useEffect(() => {
-    window.Quill = Quill;
+    window['Quill'] = Quill;
   }, []);
 
   return (
     <div>
       <ReactQuill
         // theme={this.state.theme}
-        defaultValue={value}
-        // value={value}
+        value={value}
         onChange={setValue}
         modules={modules}
         formats={formats}
