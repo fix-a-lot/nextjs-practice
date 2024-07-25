@@ -5,33 +5,26 @@ import {useEffect} from 'react';
 
 Quill.register('modules/imageResize', ImageResize);
 
-// 사이즈 변경한 이미지 불러오지 못하는 이슈 해결하는 monkey patch 코드
-interface EmbedBlot {
-  new(...args: any[]): EmbedBlot;
-  domNode: any;
-  format(name, value);
-}
+const BaseImage = Quill.import('formats/image');
+const ATTRIBUTES = ['alt', 'height', 'width', 'style'];
+const WHITE_STYLE = ['margin', 'display', 'float'];
 
-const Image: EmbedBlot = Quill.import('formats/image');
-const ImageFormatAttributesList = [
-  'alt',
-  'height',
-  'width',
-  'style'
-];
-
-class StyledImage extends Image {
+class Image extends BaseImage {
   static formats(domNode) {
-    return ImageFormatAttributesList.reduce(function (formats, attribute) {
+    return ATTRIBUTES.reduce((formats, attribute) => {
       if (domNode.hasAttribute(attribute)) {
         formats[attribute] = domNode.getAttribute(attribute);
       }
       return formats;
     }, {});
   }
+
   format(name, value) {
-    if (ImageFormatAttributesList.indexOf(name) > -1) {
+    if (ATTRIBUTES.indexOf(name) > -1) {
       if (value) {
+        if (name === 'style') {
+          value = this.sanitize_style(value);
+        }
         this.domNode.setAttribute(name, value);
       } else {
         this.domNode.removeAttribute(name);
@@ -40,10 +33,21 @@ class StyledImage extends Image {
       super.format(name, value);
     }
   }
+
+  sanitize_style = (style) => {
+    const style_arr = style.split(';');
+    let allow_style = '';
+    style_arr.forEach((v) => {
+      if (WHITE_STYLE.indexOf(v.trim().split(':')[0]) !== -1) {
+        allow_style += `${v};`;
+      }
+    });
+    return allow_style;
+  };
 }
 
-Quill.register(StyledImage, true);
-// end of 사이즈 변경한 이미지 불러오지 못하는 이슈 해결하는 monkey patch 코드
+Quill.register(Image, true);
+// Resize module end
 
 const modules = {
   toolbar: [
