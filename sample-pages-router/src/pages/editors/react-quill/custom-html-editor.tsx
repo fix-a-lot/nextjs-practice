@@ -1,8 +1,41 @@
 import ReactQuill, {Quill} from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import ImageResize from 'quill-image-resize-module-react';
+import {useEffect} from 'react';
 
 Quill.register('modules/imageResize', ImageResize);
+
+// 사이즈 변경한 이미지 불러오지 못하는 이슈 해결하는 monkey patch 코드
+var BaseImageFormat = Quill.import('formats/image');
+const ImageFormatAttributesList = [
+    'alt',
+    'height',
+    'width',
+    'style'
+];
+class ImageFormat extends BaseImageFormat {
+  static formats(domNode) {
+    return ImageFormatAttributesList.reduce(function(formats, attribute) {
+      if (domNode.hasAttribute(attribute)) {
+        formats[attribute] = domNode.getAttribute(attribute);
+      }
+      return formats;
+    }, {});
+  }
+  format(name, value) {
+    if (ImageFormatAttributesList.indexOf(name) > -1) {
+      if (value) {
+        this.domNode.setAttribute(name, value);
+      } else {
+        this.domNode.removeAttribute(name);
+      }
+    } else {
+      super.format(name, value);
+    }
+  }
+}
+Quill.register(ImageFormat, true);
+// end of 사이즈 변경한 이미지 불러오지 못하는 이슈 해결하는 monkey patch 코드
 
 const modules = {
   toolbar: [
@@ -79,6 +112,11 @@ export default function CustomHtmlEditor({
   setValue,
   placeholder = ''
 }: CustomHtmlEditorProps) {
+
+  useEffect(() => {
+    window.Quill = Quill;
+  }, []);
+
   return (
     <div>
       <ReactQuill

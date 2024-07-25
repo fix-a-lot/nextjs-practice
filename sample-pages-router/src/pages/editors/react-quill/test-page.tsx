@@ -13,7 +13,7 @@ export default function TestPage() {
   function load() {
     let content = localStorage.getItem('content') || '';
     setValue(content);
-    console.log('content:', content);
+    // console.log('content:', content);
   }
 
   function clear() {
